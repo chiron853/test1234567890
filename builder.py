@@ -4,15 +4,6 @@ import shutil
 import subprocess
 import re
 import requests
-from InquirerPy import prompt # type: ignore
-
-
-import json
-import os
-import shutil
-import subprocess
-import re
-import requests
 import base64
 from InquirerPy import prompt # type: ignore
 
